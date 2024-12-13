@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Apartment Diagram</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Create walls
+        const wallMaterial = new THREE.MeshBasicMaterial({ color: 0x808080 });
+        const createWall = (width, height, depth, x, y, z) => {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const wall = new THREE.Mesh(geometry, wallMaterial);
+            wall.position.set(x, y, z);
+            scene.add(wall);
+        };
+
+        // Exterior walls
+        createWall(20, 10, 1, 0, 5, -10); // back wall
+        createWall(20, 10, 1, 0, 5, 10); // front wall
+        createWall(1, 10, 20, -10, 5, 0); // left wall
+        createWall(1, 10, 20, 10, 5, 0); // right wall
+
+        // Interior walls
+        createWall(1, 10, 10, -5, 5, 0); // bedroom wall
+        createWall(10, 10, 1, 0, 5, 0); // kitchen wall
+
+        // Create rooms
+        const createRoom = (width, height, depth, x, y, z, color) => {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshBasicMaterial({ color: color, opacity: 0.5, transparent: true });
+            const room = new THREE.Mesh(geometry, material);
+            room.position.set(x, y, z);
+            scene.add(room);
+        };
+
+        createRoom(10, 1, 10, -5, 0.5, 0, 0xff0000); // bedroom
+        createRoom(10, 1, 10, 5, 0.5, 0, 0x00ff00); // kitchen
+        createRoom(10, 1, 10, 0, 0.5, 5, 0x0000ff); // dining room
+        createRoom(10, 1, 10, 0, 0.5, -5, 0xffff00); // living room
+
+        // Add furniture
+        const createFurniture = (width, height, depth, x, y, z, color) => {
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshBasicMaterial({ color: color });
+            const furniture = new THREE.Mesh(geometry, material);
+            furniture.position.set(x, y, z);
+            scene.add(furniture);
+        };
+
+        createFurniture(2, 1, 2, -5, 1, 0, 0x8B4513); // bed in bedroom
+        createFurniture(2, 1, 2, 5, 1, 0, 0x8B4513); // table in kitchen
+        createFurniture(2, 1, 2, 0, 1, 5, 0x8B4513); // table in dining room
+        createFurniture(2, 1, 2, 0, 1, -5, 0x8B4513); // sofa in living room
+
+        // Add labels
+        const createLabel = (text, x, y, z) => {
+            const loader = new THREE.FontLoader();
+            loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', function (font) {
+                const geometry = new THREE.TextGeometry(text, {
+                    font: font,
+                    size: 1,
+                    height: 0.1,
+                });
+                const material = new THREE.MeshBasicMaterial({ color: 0x000000 });
+                const label = new THREE.Mesh(geometry, material);
+                label.position.set(x, y, z);
+                scene.add(label);
+            });
+        };
+
+        createLabel('Bedroom', -5, 6, 0);
+        createLabel('Kitchen', 5, 6, 0);
+        createLabel('Dining Room', 0, 6, 5);
+        createLabel('Living Room', 0, 6, -5);
+
+        // Camera position
+        camera.position.set(10, 20, 10);
+        camera.lookAt(0, 0, 0);
+
+        // Render loop
+        const animate = function () {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        };
+
+        animate();
+    </script>
+</body>
+</html>
